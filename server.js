@@ -5,6 +5,16 @@ var inMemoryDatabase = require("./in-memory-database");
 var bodyParser = require ("body-parser");
 var db = inMemoryDatabase();
 
+var pg = require("pg");
+var pool = new pg.Pool({
+ user: "postgres",
+ password: "MyP@ssw0r5",
+ host: "localhost",
+ port: 5432,
+ database: "postgres",
+ ssl: false
+});
+
 var items = [
   {name: "Fish", price: 20},
   {name: "Carrots", price: 2.5}
@@ -15,7 +25,13 @@ db.init(items);
 app.use(bodyParser.json());
 
 app.get("/api/items", function (req, res) {
- res.send(db.readAll());
+ pool.query("SELECT * FROM shopping_list").then(function(result){
+   res.send(result.rows);
+ }).catch(function(err){
+   console.log(err);
+   res.status(500);
+   res.send("OOPS");
+ });
 });
 
 app.post("/api/items", function (req, res) {
@@ -36,7 +52,7 @@ app.delete("/api/items/:id", function (req, res) {
   res.send("Deleted!");
 });
 
-// To get any part of the arry, you can type aftere the slash ":id"
+// To get any part of the [], you can type aftere the slash ":id"
 //console.log here shows if it's going to print the id for the opbject that you're looking for. This
 // will print in the terminal
 // then create a var and set it to req.params.id
