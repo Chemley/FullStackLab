@@ -35,16 +35,36 @@ app.get("/api/items", function (req, res) {
 });
 
 app.post("/api/items", function (req, res) {
-  db.create(req.body);
- res.send("Okay");
-});
+  var items = req.body;
+  var sql = "INSERT INTO shopping_list(item, cost)" + "values($1::text, $2::int)";
+  var values = [items.item, items.cost];
+  pool.query(sql, values).then(function(){
+    res.send('added');
+  }).catch(function(err){
+    console.log(err);
+    res.status(500);
+    res.send("OOPS");
+  });
+ });
 
-app.put("/api/items/:id", function (req, res) {
-  var id = req.params.id;
-  var food = req.body;
-  db.update(id, food);
-  res.send("Updated!");
-});
+ app.delete("/api/items", function (req, res) {
+   var items = req.body;
+   var sql = "INSERT INTO shopping_list(item, cost)" + "values($1::text, $2::int)";
+   var values = [items.item, items.cost];
+   pool.query(sql, values).then(function(){
+     res.send('deleted');
+   }).catch(function(err){
+     console.log(err);
+     res.status(500);
+     res.send("OOPS");
+   });
+  });
+// app.put("/api/items/:id", function (req, res) {
+//   var id = req.params.id;
+//   var food = req.body;
+//   db.update(id, food);
+//   res.send("Updated!");
+// });
 
 app.delete("/api/items/:id", function (req, res) {
   var id = req.params.id;
